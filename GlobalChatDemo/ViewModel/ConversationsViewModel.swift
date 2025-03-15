@@ -97,12 +97,39 @@ class ConversationsViewModel: ObservableObject {
     }
     
     func deleteConversation(conversationID: String, completion: @escaping (Bool) -> Void) {
-        db.collection("conversations").document(conversationID).delete { error in
+        let conversationRef = db.collection("conversations").document(conversationID)
+        
+        // まず、会話ドキュメントの「messages」サブコレクションの全ドキュメントを取得
+        conversationRef.collection("messages").getDocuments { snapshot, error in
             if let error = error {
-                print("Error deleting conversation: \(error)")
+                print("Error fetching messages for deletion: \(error)")
                 completion(false)
-            } else {
-                completion(true)
+                return
+            }
+            
+            let batch = self.db.batch()
+            
+            // サブコレクションの各ドキュメントをバッチに追加
+            snapshot?.documents.forEach { document in
+                batch.deleteDocument(document.reference)
+            }
+            
+            // バッチコミットで全てのメッセージを削除
+            batch.commit { error in
+                if let error = error {
+                    print("Error deleting messages: \(error)")
+                    completion(false)
+                } else {
+                    // サブコレクションの削除が成功したら、会話ドキュメントを削除する
+                    conversationRef.delete { error in
+                        if let error = error {
+                            print("Error deleting conversation: \(error)")
+                            completion(false)
+                        } else {
+                            completion(true)
+                        }
+                    }
+                }
             }
         }
     }
