@@ -10,6 +10,8 @@ import SwiftUI
 struct SettingsView: View {
     @State private var username: String = UserDefaults.standard.string(forKey: "myUserName") ?? ""
     @State private var showSavedMessage: Bool = false
+    @State private var errorMessage: String? = nil
+    @State private var showErrorAlert: Bool = false
 
     var body: some View {
         NavigationView {
@@ -21,10 +23,34 @@ struct SettingsView: View {
                 
                 Section {
                     Button("保存") {
-                        UserDefaults.standard.set(username, forKey: "myUserName")
-                        showSavedMessage = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            showSavedMessage = false
+                        // まず、既に登録済みのユーザー名を取得
+                        let currentStored = UserDefaults.standard.string(forKey: "myUserName") ?? ""
+                        if !currentStored.isEmpty && username == currentStored {
+                            // 同じ名前の場合は、その旨のポップアップを表示
+                            errorMessage = "登録された名前と同じです"
+                            showErrorAlert = true
+                        } else {
+                            // 異なる名前の場合、Firestoreで重複チェックを行う
+                            FirestoreManager.shared.isUsernameTaken(username) { taken in
+                                if taken {
+                                    errorMessage = "このユーザー名は既に使用されています。別のユーザー名を入力してください。"
+                                    showErrorAlert = true
+                                } else {
+                                    // 重複していなければ、UserDefaultsとFirestoreに登録
+                                    UserDefaults.standard.set(username, forKey: "myUserName")
+                                    FirestoreManager.shared.registerUsername(username) { success in
+                                        if success {
+                                            showSavedMessage = true
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                                showSavedMessage = false
+                                            }
+                                        } else {
+                                            errorMessage = "ユーザー名の登録に失敗しました。再度お試しください。"
+                                            showErrorAlert = true
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -37,6 +63,11 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("設定")
+            .alert(isPresented: $showErrorAlert) {
+                Alert(title: Text("エラー"),
+                      message: Text(errorMessage ?? "エラーが発生しました"),
+                      dismissButton: .default(Text("OK")))
+            }
         }
     }
 }
