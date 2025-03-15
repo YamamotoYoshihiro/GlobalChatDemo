@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedConversation = 0
-    // 表示用の会話オプション。各タプルの1つ目は表示名、2つ目は相手ID
+    // 各タプルの1つ目は会話タイトル、2つ目は相手ID
     let conversationOptions = [("A-B", "PartnerB"), ("A-C", "PartnerC")]
     
     var body: some View {
@@ -21,8 +21,11 @@ struct ContentView: View {
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
-            // 選択された会話に応じた ChatView を表示
-            ChatView(conversationID: conversationOptions[selectedConversation].1)
+            // ChatView の初期化時に conversationID と conversationTitle を渡す
+            ChatView(
+                conversationID: conversationOptions[selectedConversation].1,
+                conversationTitle: conversationOptions[selectedConversation].0
+            )
         }
     }
 }
@@ -32,3 +35,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+

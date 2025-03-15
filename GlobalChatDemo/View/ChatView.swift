@@ -9,11 +9,14 @@ import SwiftUI
 
 struct ChatView: View {
     let conversationID: String
+    let conversationTitle: String  // 追加：会話タイトル
     @ObservedObject private var viewModel: ChatViewModel
     @State private var newMessage: String = ""
     
-    init(conversationID: String) {
+    // 初期化時に会話IDと会話タイトルを渡す
+    init(conversationID: String, conversationTitle: String) {
         self.conversationID = conversationID
+        self.conversationTitle = conversationTitle
         self.viewModel = ChatViewModel(conversationID: conversationID)
     }
     
@@ -43,12 +46,13 @@ struct ChatView: View {
             }
             .padding(.bottom, 10)
         }
-        .navigationTitle("Chat")
+        // ここで会話タイトルをナビゲーションタイトルに設定
+        .navigationTitle(conversationTitle)
     }
 }
 
 struct ChatView_Previews: PreviewProvider {
     static var previews: some View {
-        ChatView(conversationID: "Alice_Bob")
+        ChatView(conversationID: "Alice_Bob_ProjectChat", conversationTitle: "Project Chat")
     }
 }

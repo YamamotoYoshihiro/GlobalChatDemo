@@ -15,23 +15,20 @@ struct ConversationsListView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(viewModel.conversations) { conversation in
-                    // NavigationLink を HStack でラップして、その HStack に swipeActions を適用
-                    HStack {
-                        NavigationLink(destination: ChatView(conversationID: conversation.id)) {
-                            let title = conversation.name?.isEmpty == false ? conversation.name! : "Unnamed Conversation"
-                            Text("\(title) (\(conversation.partnerName))")
+            List(viewModel.conversations) { conversation in
+                // 会話タイトルが空の場合は "Unnamed Conversation" とする
+                let title = conversation.name?.isEmpty == false ? conversation.name! : "Unnamed Conversation"
+                // NavigationLink で、会話ID と 会話タイトルを渡す
+                NavigationLink(destination: ChatView(conversationID: conversation.id, conversationTitle: title)) {
+                    Text("\(title) (\(conversation.partnerName))")
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        viewModel.deleteConversation(conversationID: conversation.id) { success in
+                            // 削除成功時の処理（必要なら）
                         }
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            viewModel.deleteConversation(conversationID: conversation.id) { success in
-                                // 必要なら削除成功時の処理
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
