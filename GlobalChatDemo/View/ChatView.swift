@@ -56,3 +56,4 @@ struct ChatView_Previews: PreviewProvider {
         ChatView(conversationID: "Alice_Bob_ProjectChat", conversationTitle: "Project Chat")
     }
 }
+
