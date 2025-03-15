@@ -69,9 +69,11 @@ class ConversationsViewModel: ObservableObject {
         // 両者のユーザー名を辞書順にソート
         let sortedNames = [myName, partnerName].sorted()
         
-        // ユーザーが入力した会話タイトルをトリムし、スペースをハイフンに置換（IDとして使いやすくする）
+        // ユーザーが入力した会話タイトルをトリムし、禁止文字 "/" を全角 "／" に置換、スペースは "-" に置換
         let conversationTitle = name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let sanitizedTitle = conversationTitle.replacingOccurrences(of: " ", with: "-")
+        let sanitizedTitle = conversationTitle
+            .replacingOccurrences(of: "/", with: "／")
+            .replacingOccurrences(of: " ", with: "-")
         
         // 会話IDは、参加者の名前 + (タイトルがあればタイトルを付加) で生成
         let conversationID: String
@@ -83,7 +85,7 @@ class ConversationsViewModel: ObservableObject {
         
         let conversationData: [String: Any] = [
             "participants": [myName, partnerName],
-            "name": conversationTitle  // ユーザーが入力したタイトルそのまま
+            "name": conversationTitle  // ユーザーが入力したタイトルそのまま保存
         ]
         
         db.collection("conversations").document(conversationID).setData(conversationData) { error in
@@ -95,7 +97,7 @@ class ConversationsViewModel: ObservableObject {
             }
         }
     }
-    
+
     func deleteConversation(conversationID: String, completion: @escaping (Bool) -> Void) {
         let conversationRef = db.collection("conversations").document(conversationID)
         
