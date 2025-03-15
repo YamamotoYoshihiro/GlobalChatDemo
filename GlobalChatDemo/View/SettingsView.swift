@@ -23,23 +23,37 @@ struct SettingsView: View {
                 
                 Section {
                     Button("保存") {
-                        // まず、既に登録済みのユーザー名を取得
+                        // 既に登録済みのユーザー名を取得
                         let currentStored = UserDefaults.standard.string(forKey: "myUserName") ?? ""
-                        if !currentStored.isEmpty && username == currentStored {
-                            // 同じ名前の場合は、その旨のポップアップを表示
+                        
+                        // 新しい名前と同じならエラー
+                        if currentStored == username {
                             errorMessage = "登録された名前と同じです"
                             showErrorAlert = true
-                        } else {
-                            // 異なる名前の場合、Firestoreで重複チェックを行う
-                            FirestoreManager.shared.isUsernameTaken(username) { taken in
-                                if taken {
-                                    errorMessage = "このユーザー名は既に使用されています。別のユーザー名を入力してください。"
-                                    showErrorAlert = true
-                                } else {
-                                    // 重複していなければ、UserDefaultsとFirestoreに登録
-                                    UserDefaults.standard.set(username, forKey: "myUserName")
+                            return
+                        }
+                        
+                        // Firestoreで新しい名前の重複チェック
+                        FirestoreManager.shared.isUsernameTaken(username) { taken in
+                            if taken {
+                                // 既に使われていたらエラー
+                                errorMessage = "このユーザー名は既に使用されています。別のユーザー名を入力してください。"
+                                showErrorAlert = true
+                            } else {
+                                // 重複していない場合
+                                // 古い名前を削除
+                                FirestoreManager.shared.deleteUsername(currentStored) { deleteSuccess in
+                                    if !deleteSuccess {
+                                        // 削除失敗したらエラーアラート等の処理
+                                        errorMessage = "古いユーザー名の削除に失敗しました"
+                                        showErrorAlert = true
+                                        return
+                                    }
+                                    // 古い名前の削除が成功したら、新しい名前を登録
                                     FirestoreManager.shared.registerUsername(username) { success in
                                         if success {
+                                            // 新しい名前を UserDefaults に保存
+                                            UserDefaults.standard.set(username, forKey: "myUserName")
                                             showSavedMessage = true
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                                 showSavedMessage = false

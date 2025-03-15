@@ -43,4 +43,34 @@ class FirestoreManager {
             }
         }
     }
+    
+    func deleteUsername(_ username: String, completion: @escaping (Bool) -> Void) {
+        db.collection("users")
+            .whereField("username", isEqualTo: username)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error deleting username: \(error)")
+                    completion(false)
+                    return
+                }
+                guard let snapshot = snapshot else {
+                    completion(false)
+                    return
+                }
+                
+                // バッチ処理でまとめて削除
+                let batch = self.db.batch()
+                for document in snapshot.documents {
+                    batch.deleteDocument(document.reference)
+                }
+                batch.commit { error in
+                    if let error = error {
+                        print("Error committing batch delete: \(error)")
+                        completion(false)
+                    } else {
+                        completion(true)
+                    }
+                }
+            }
+    }
 }
