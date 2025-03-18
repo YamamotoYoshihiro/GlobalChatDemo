@@ -1,5 +1,37 @@
+# macOS関連
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode関連
 *.xcuserstate
-xcuserdata/
-DerivedData/
+*.xcworkspace
+*.xcuserdata
+*.xccheckout
 build/
+DerivedData/
+
+# Node.js関連
+node_modules/
+
+# Firebaseサービスアカウントキー
+# (例: globalchatdemo-ecd13-c2d5ee912ef8.json)
+globalchatdemo-ecd13-c2d5ee912ef8.json
+
+# AuthKey (APNs用のp8ファイル)
+AuthKey_JB86VKR96W.p8
+
+# その他機密ファイル（*.p8, *.pem など）
+*.p8
+*.pem
+
+# ログファイル
+*.log
+
+# npm-debug file
+npm-debug.log
+
+# package-lock.json について
+# 通常はバージョンの整合性を保つためにコミットすることが多い
+# もし不要なら下記をアンコメント
+# package-lock.json
