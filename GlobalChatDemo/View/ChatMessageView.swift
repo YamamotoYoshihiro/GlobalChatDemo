@@ -12,10 +12,8 @@ struct ChatMessageView: View {
     
     var body: some View {
         VStack(alignment: message.isSentByCurrentUser ? .trailing : .leading, spacing: 4) {
-            // ユーザー名をアイコンの上に表示
             HStack {
                 if !message.isSentByCurrentUser {
-                    // 受信メッセージ: 左側にユーザー名とアイコン、テキスト
                     VStack(spacing: 2) {
                         Text(message.senderName)
                             .font(.caption)
@@ -31,7 +29,6 @@ struct ChatMessageView: View {
                         .cornerRadius(8)
                     Spacer()
                 } else {
-                    // 送信メッセージ: 右側にテキストと、ユーザー名とアイコン
                     Spacer()
                     Text(message.text)
                         .padding(10)
@@ -48,7 +45,7 @@ struct ChatMessageView: View {
                     }
                 }
             }
-            // タイムスタンプ表示
+            
             HStack {
                 if message.isSentByCurrentUser {
                     Spacer()
@@ -63,13 +60,34 @@ struct ChatMessageView: View {
                 }
             }
             .padding(.horizontal, 16)
+            
+            // 送信メッセージの場合のみ既読／未読を表示
+            if message.isSentByCurrentUser {
+                HStack {
+                    Spacer()
+                    if message.isRead {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundColor(.blue)
+                        Text("既読")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    } else {
+                        Image(systemName: "clock")
+                            .foregroundColor(.gray)
+                        Text("未読")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
         }
         .padding(.horizontal)
     }
     
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"  // 例: 14:35
+        formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
 }

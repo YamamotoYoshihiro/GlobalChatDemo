@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChatView: View {
     let conversationID: String
-    let conversationTitle: String  // 追加：会話タイトル
+    let conversationTitle: String  // 会話タイトル
     @ObservedObject private var viewModel: ChatViewModel
     @State private var newMessage: String = ""
     
@@ -46,8 +46,11 @@ struct ChatView: View {
             }
             .padding(.bottom, 10)
         }
-        // ここで会話タイトルをナビゲーションタイトルに設定
         .navigationTitle(conversationTitle)
+        .onAppear {
+            // 受信者がチャット画面を開いたときに既読更新
+            viewModel.markMessagesAsRead()
+        }
     }
 }
 
