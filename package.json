@@ -1,0 +1,24 @@
+{
+  "name": "globalchatdemo",
+  "version": "1.0.0",
+  "description": "<!DOCTYPE html> <html lang=\"ja\"> <head>   <meta charset=\"UTF-8\"> </head> <body>   <h1>GlobalChatDemo</h1>   <p>     GlobalChatDemo は、Firebase Firestore を利用した簡単な双方向チャット機能を実装したサンプルプロジェクトです。<br>     このプロジェクトでは、各端末が固有の識別子 (<code>UIDevice.current.identifierForVendor</code>) を用いて送信者を自動判別し、1対1の会話ルームを動的に作成・管理する仕組みを実現しています。   </p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YamamotoYoshihiro/GlobalChatDemo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YamamotoYoshihiro/GlobalChatDemo/issues"
+  },
+  "homepage": "https://github.com/YamamotoYoshihiro/GlobalChatDemo#readme",
+  "dependencies": {
+    "apn": "^2.2.0",
+    "firebase-admin": "^13.2.0"
+  }
+}
