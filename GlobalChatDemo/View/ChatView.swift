@@ -37,6 +37,7 @@ struct ChatView: View {
                 Button(action: {
                     guard !newMessage.isEmpty else { return }
                     viewModel.sendMessage(text: newMessage)
+                    // キーボードを閉じる処理
                     UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     newMessage = ""
                 }) {
@@ -47,8 +48,12 @@ struct ChatView: View {
             .padding(.bottom, 10)
         }
         .navigationTitle(conversationTitle)
+        // 画面が表示されたら既読更新
         .onAppear {
-            // 受信者がチャット画面を開いたときに既読更新
+            viewModel.markMessagesAsRead()
+        }
+        // メッセージ配列に変更があった場合も既読更新する
+        .onChange(of: viewModel.messages) {
             viewModel.markMessagesAsRead()
         }
     }
@@ -59,4 +64,3 @@ struct ChatView_Previews: PreviewProvider {
         ChatView(conversationID: "Alice_Bob_ProjectChat", conversationTitle: "Project Chat")
     }
 }
-

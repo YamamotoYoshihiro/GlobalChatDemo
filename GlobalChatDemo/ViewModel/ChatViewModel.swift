@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 import Firebase
 
-struct Message: Identifiable {
+struct Message: Identifiable, Equatable {
     let id = UUID()
     let text: String
     let senderName: String
@@ -79,7 +79,6 @@ class ChatViewModel: ObservableObject {
     }
     
     func markMessagesAsRead() {
-        // まず、未読メッセージ（isRead == false）のドキュメントを取得
         let messagesRef = db.collection("conversations")
             .document(conversationID)
             .collection("messages")
@@ -92,9 +91,8 @@ class ChatViewModel: ObservableObject {
             }
             for doc in documents {
                 let data = doc.data()
-                // 送信者が自分でない（＝相手からのメッセージ）場合のみ更新
-                if let senderName = data["senderName"] as? String,
-                   senderName != self.myUserName {
+                // 自分が送信したメッセージは対象外
+                if let senderName = data["senderName"] as? String, senderName != self.myUserName {
                     doc.reference.updateData(["isRead": true]) { error in
                         if let error = error {
                             print("Error marking message as read: \(error.localizedDescription)")
