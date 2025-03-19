@@ -16,11 +16,23 @@ struct ConversationsListView: View {
     var body: some View {
         NavigationView {
             List(viewModel.conversations) { conversation in
-                // 会話タイトルが空の場合は "Unnamed Conversation" とする
+                // 会話タイトルが空なら "Unnamed Conversation"
                 let title = conversation.name?.isEmpty == false ? conversation.name! : "Unnamed Conversation"
-                // NavigationLink で、会話ID と 会話タイトルを渡す
+                // 未読件数を、ConversationsViewModel の unreadCounts 辞書から取得
+                let unread = viewModel.unreadCounts[conversation.id] ?? 0
+                
                 NavigationLink(destination: ChatView(conversationID: conversation.id, conversationTitle: title)) {
-                    Text("\(title) (\(conversation.partnerName))")
+                    HStack {
+                        Text("\(title) (\(conversation.partnerName))")
+                        if unread > 0 {
+                            Text(" \(unread)")
+                                .font(.caption)
+                                .padding(4)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .clipShape(Circle())
+                        }
+                    }
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {

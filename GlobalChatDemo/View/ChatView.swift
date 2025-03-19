@@ -22,13 +22,36 @@ struct ChatView: View {
     
     var body: some View {
         VStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    ForEach(viewModel.messages) { message in
-                        ChatMessageView(message: message)
+            // ScrollViewReader で内部の ScrollView をプログラムで制御
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(viewModel.messages) { message in
+                            ChatMessageView(message: message)
+                                .id(message.id) // 各メッセージに一意のIDを割り当てる
+                        }
+                    }
+                    .padding(.vertical)
+                }
+                // 画面表示時に、最新のメッセージへスクロールする
+                .onAppear {
+                    // 遅延させてスクロールすることで、メッセージ配列が更新されるのを待つ
+                    DispatchQueue.main.async {
+                        if let lastMessage = viewModel.messages.last {
+                            withAnimation {
+                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                            }
+                        }
                     }
                 }
-                .padding(.vertical)
+                // メッセージが更新された場合も、最新メッセージにスクロール
+                .onChange(of: viewModel.messages) {
+                    if let lastMessage = viewModel.messages.last {
+                        withAnimation {
+                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        }
+                    }
+                }
             }
             HStack {
                 TextField("メッセージを入力...", text: $newMessage)
@@ -48,12 +71,8 @@ struct ChatView: View {
             .padding(.bottom, 10)
         }
         .navigationTitle(conversationTitle)
-        // 画面が表示されたら既読更新
+        // 会話ルームを開いたときに既読更新
         .onAppear {
-            viewModel.markMessagesAsRead()
-        }
-        // メッセージ配列に変更があった場合も既読更新する
-        .onChange(of: viewModel.messages) {
             viewModel.markMessagesAsRead()
         }
     }
